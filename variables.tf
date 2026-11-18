@@ -10,7 +10,7 @@ variable "name" {
 
 variable "backends" {
   type        = list(string)
-  description = "Self links of the instance groups or network endpoint groups that serve traffic"
+  description = "Self links of the instance groups (or, with var.serverless_backends, serverless network endpoint groups) that serve traffic"
 
   validation {
     condition     = length(var.backends) > 0 && alltrue([for b in var.backends : can(regex("/(instanceGroups|networkEndpointGroups)/[^/]+$", b))])
@@ -20,12 +20,14 @@ variable "backends" {
 
 variable "serverless_backends" {
   type        = bool
-  description = "Set true when var.backends are serverless NEGs (Cloud Run, Cloud Functions, App Engine): no health check, named port or backend timeout is configured"
+  description = "Set true when var.backends are serverless NEGs (Cloud Run, Cloud Functions, App Engine): no health check, named port or backend timeout is configured. When false, var.backends must be instance groups (the named-port health check does not apply to NEGs)"
   default     = false
 
   validation {
-    condition     = !var.serverless_backends || alltrue([for b in var.backends : can(regex("/networkEndpointGroups/", b))])
-    error_message = "var.serverless_backends can only be true when every entry in var.backends is a network endpoint group"
+    condition = (var.serverless_backends
+      ? alltrue([for b in var.backends : can(regex("/regions/[^/]+/networkEndpointGroups/[^/]+$", b))])
+    : alltrue([for b in var.backends : can(regex("/instanceGroups/[^/]+$", b))]))
+    error_message = "var.backends must all be regional serverless network endpoint groups when var.serverless_backends is true, and instance groups otherwise (zonal/internet NEGs are not supported: the USE_NAMED_PORT health check cannot target them)"
   }
 }
 

@@ -59,7 +59,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
-| <a name="input_backends"></a> [backends](#input\_backends) | Self links of the instance groups or network endpoint groups that serve traffic | `list(string)` | n/a | yes |
+| <a name="input_backends"></a> [backends](#input\_backends) | Self links of the instance groups (or, with var.serverless\_backends, serverless network endpoint groups) that serve traffic | `list(string)` | n/a | yes |
 | <a name="input_certificate_map"></a> [certificate\_map](#input\_certificate\_map) | Certificate Manager certificate map, as //certificatemanager.googleapis.com/projects/P/locations/global/certificateMaps/NAME. When set, no compute managed certificate is created | `string` | `null` | no |
 | <a name="input_connection_draining_timeout_sec"></a> [connection\_draining\_timeout\_sec](#input\_connection\_draining\_timeout\_sec) | Seconds to let in-flight requests finish when a backend is removed | `number` | `300` | no |
 | <a name="input_custom_response_headers"></a> [custom\_response\_headers](#input\_custom\_response\_headers) | Headers added to every response, as "Name: value". Defaults to HSTS | `list(string)` | <pre>[<br/>  "Strict-Transport-Security: max-age=31536000; includeSubDomains"<br/>]</pre> | no |
@@ -71,7 +71,7 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | Name prefix for every load balancer resource | `string` | n/a | yes |
 | <a name="input_port_name"></a> [port\_name](#input\_port\_name) | Named port on the instance groups that serves HTTPS; ignored for serverless backends | `string` | `"https"` | no |
 | <a name="input_security_policy"></a> [security\_policy](#input\_security\_policy) | Self link or ID of the Cloud Armor security policy attached to the backend service | `string` | n/a | yes |
-| <a name="input_serverless_backends"></a> [serverless\_backends](#input\_serverless\_backends) | Set true when var.backends are serverless NEGs (Cloud Run, Cloud Functions, App Engine): no health check, named port or backend timeout is configured | `bool` | `false` | no |
+| <a name="input_serverless_backends"></a> [serverless\_backends](#input\_serverless\_backends) | Set true when var.backends are serverless NEGs (Cloud Run, Cloud Functions, App Engine): no health check, named port or backend timeout is configured. When false, var.backends must be instance groups (the named-port health check does not apply to NEGs) | `bool` | `false` | no |
 | <a name="input_ssl_profile"></a> [ssl\_profile](#input\_ssl\_profile) | SSL policy profile: MODERN or RESTRICTED (COMPATIBLE and CUSTOM are not allowed) | `string` | `"MODERN"` | no |
 | <a name="input_timeout_sec"></a> [timeout\_sec](#input\_timeout\_sec) | Backend response timeout in seconds; ignored for serverless backends | `number` | `30` | no |
 
