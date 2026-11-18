@@ -1,55 +1,55 @@
 {
-  "scan_date": "2026-11-18T12:00:00Z",
-  "scan_path": ".",
   "category": "all",
   "findings": [
     {
-      "id": "HOLDEN_AI_001",
-      "status": "fixed",
-      "first_seen": "2026-11-18",
-      "last_seen": "2026-11-18",
-      "unresolved_since": null,
-      "suppression_reason": null,
-      "principle": "reliability",
-      "severity": "MEDIUM",
       "confidence": "high",
-      "title": "Managed certificate uses create_before_destroy with a static name, so changing domains fails on a name collision",
+      "explanation": "managed.domains forces replacement, and create_before_destroy creates the new certificate before deleting the old one, but both are named \"${var.name}-cert\", so the create fails with an already-exists error and the domain change cannot be applied. Best-fit principle reliability (apply-time correctness).",
       "file": "google_compute_managed_ssl_certificate.main.tf",
+      "first_seen": "2026-11-18",
+      "fix": "name = \"${var.name}-cert-${substr(sha1(join(\",\", sort(var.managed_ssl_domains))), 0, 8)}\"",
+      "fixable": true,
+      "id": "HOLDEN_AI_001",
+      "last_seen": "2026-11-18",
       "line": 1,
-      "resource": "google_compute_managed_ssl_certificate.main",
+      "principle": "reliability",
       "related_resources": [
         "google_compute_target_https_proxy.main",
         "variable.managed_ssl_domains"
       ],
-      "explanation": "managed.domains forces replacement, and create_before_destroy creates the new certificate before deleting the old one, but both are named \"${var.name}-cert\", so the create fails with an already-exists error and the domain change cannot be applied. Best-fit principle reliability (apply-time correctness).",
       "remediation": "Make the name unique per domain set, e.g. append a short hash of the sorted domains.",
-      "fixable": true,
-      "fix": "name = \"${var.name}-cert-${substr(sha1(join(\",\", sort(var.managed_ssl_domains))), 0, 8)}\""
+      "resource": "google_compute_managed_ssl_certificate.main",
+      "severity": "MEDIUM",
+      "status": "fixed",
+      "suppression_reason": null,
+      "title": "Managed certificate uses create_before_destroy with a static name, so changing domains fails on a name collision",
+      "unresolved_since": null
     },
     {
-      "id": "HOLDEN_AI_002",
-      "status": "fixed",
-      "first_seen": "2026-11-18",
-      "last_seen": "2026-11-18",
-      "unresolved_since": null,
-      "suppression_reason": null,
-      "principle": "reliability",
-      "severity": "MEDIUM",
       "confidence": "medium",
-      "title": "Non-serverless NEG backends pass validation but get a USE_NAMED_PORT health check that cannot target NEGs",
+      "explanation": "var.backends accepts any network endpoint group, and with serverless_backends = false the module attaches an HTTPS health check with port_specification = USE_NAMED_PORT and a named port. Named ports do not apply to zonal/internet NEGs (they need USE_SERVING_PORT, RATE balancing and, for internet NEGs, no health check), so such a configuration plans but fails at apply or never becomes healthy.",
       "file": "variables.tf",
+      "first_seen": "2026-11-18",
+      "fixable": false,
+      "id": "HOLDEN_AI_002",
+      "last_seen": "2026-11-18",
       "line": 21,
-      "resource": "variable.serverless_backends",
+      "principle": "reliability",
       "related_resources": [
         "google_compute_health_check.main",
         "google_compute_backend_service.main",
         "variable.backends"
       ],
-      "explanation": "var.backends accepts any network endpoint group, and with serverless_backends = false the module attaches an HTTPS health check with port_specification = USE_NAMED_PORT and a named port. Named ports do not apply to zonal/internet NEGs (they need USE_SERVING_PORT, RATE balancing and, for internet NEGs, no health check), so such a configuration plans but fails at apply or never becomes healthy.",
       "remediation": "Restrict backends to instance groups when serverless_backends is false, and to regional serverless NEGs when it is true.",
-      "fixable": false
+      "resource": "variable.serverless_backends",
+      "severity": "MEDIUM",
+      "status": "fixed",
+      "suppression_reason": null,
+      "title": "Non-serverless NEG backends pass validation but get a USE_NAMED_PORT health check that cannot target NEGs",
+      "unresolved_since": null
     }
   ],
+  "scan_date": "2026-11-18T12:00:00Z",
+  "scan_path": ".",
   "suggested_policies": [],
   "suggested_suppressions": []
 }
